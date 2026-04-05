@@ -11,7 +11,7 @@
 <style>
 /* ── RESET ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#0D3D23;overflow:hidden;height:100%;width:100%}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#0D3D23;overflow:hidden;height:100%;width:100%;overscroll-behavior:none;-webkit-overflow-scrolling:touch}
 html{height:100%}
 button{font-family:inherit;cursor:pointer}
 
@@ -79,7 +79,7 @@ button{font-family:inherit;cursor:pointer}
 .hdr h1{font-size:19px;font-weight:800;color:var(--tx)}
 .hdr p{font-size:12px;color:var(--txs);margin-top:1px}
 .back{background:none;border:none;font-size:26px;color:var(--g600);padding:0;line-height:1;flex-shrink:0}
-.scrl{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scrl{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .scrl::-webkit-scrollbar{display:none}
 .sec{font-size:11px;font-weight:700;color:var(--txs);text-transform:uppercase;letter-spacing:.8px;padding:14px 18px 8px}
 .btn{width:100%;padding:14px;border:none;background:linear-gradient(135deg,var(--g600),var(--g400));color:var(--w);font-size:15px;font-weight:700;border-radius:var(--r32);box-shadow:0 4px 16px rgba(30,122,71,.35);transition:transform .1s}
@@ -197,7 +197,7 @@ button{font-family:inherit;cursor:pointer}
 .dsbi .dsl{font-size:10px;color:var(--txs);margin-bottom:4px;text-align:center}
 .dstrk{background:var(--g200);border-radius:4px;height:6px;overflow:hidden}
 .dsfil{height:100%;border-radius:4px;transition:width .6s}
-.flist{flex:1;overflow-y:auto}
+.flist{flex:1;overflow-y:auto;overscroll-behavior:contain}
 .flist::-webkit-scrollbar{display:none}
 .fitem{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--bg);cursor:pointer;transition:background .1s}
 .fitem:active{background:var(--bg)}
@@ -224,7 +224,7 @@ button{font-family:inherit;cursor:pointer}
 .mfil::-webkit-scrollbar{display:none}
 .mfb{flex-shrink:0;padding:6px 12px;border-radius:16px;font-size:11px;font-weight:600;color:var(--txs);background:var(--w);border:1.5px solid var(--bg2);cursor:pointer;transition:all .15s}
 .mfb.on{background:var(--g600);border-color:var(--g600);color:var(--w)}
-.exlist{flex:1;overflow-y:auto}
+.exlist{flex:1;overflow-y:auto;overscroll-behavior:contain}
 .exlist::-webkit-scrollbar{display:none}
 .exitem{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--bg);cursor:pointer;transition:background .1s}
 .exitem:active{background:var(--bg)}
@@ -460,7 +460,7 @@ button{font-family:inherit;cursor:pointer}
       <div class="hdr"><button class="back" onclick="go('dash')">‹</button><div><h1>Nutrición</h1></div></div>
       <div class="searchbar">
         <div class="sinp"><span style="font-size:16px">🔍</span><input id="fsearch" placeholder="Buscar alimento chileno…" oninput="filterF(this.value)"/></div>
-        <button class="sfab" onclick="toast('📷 Escaneo disponible en app Android')">📷</button>
+        <button class="sfab" onclick="openScanner()">📷</button>
       </div>
       <div class="dsum">
         <div class="dsrow"><span>Calorías registradas hoy</span><b id="dsk">0 kcal</b></div>
@@ -661,6 +661,40 @@ button{font-family:inherit;cursor:pointer}
         <div class="sopt" onclick="setAct(1.55,'Moderado')"><div class="sopt-ic">🏃</div><div><h4>Moderado</h4><p>3–5 días/semana</p></div></div>
         <div class="sopt" onclick="setAct(1.725,'Activo')"><div class="sopt-ic">⚡</div><div><h4>Activo</h4><p>6–7 días/semana</p></div></div>
         <div class="sopt" onclick="setAct(1.9,'Muy activo')"><div class="sopt-ic">🏋️</div><div><h4>Muy activo</h4><p>2x día o trabajo físico</p></div></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SCANNER SHEET -->
+  <div class="sovl" id="scansheet" onclick="closeSheet('scansheet')">
+    <div class="sht" onclick="event.stopPropagation()">
+      <div class="shnd"></div>
+      <div class="sttl">Buscar por código de barras</div>
+      <div class="scnt">
+        <p style="font-size:13px;color:var(--txs);margin-bottom:14px">Ingresa el código de barras del producto para buscarlo en Open Food Facts.</p>
+        <div class="lbl">Código de barras</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <input class="ainp" id="bc-inp" type="number" placeholder="Ej: 7802800101058" style="flex:1;margin-bottom:0"/>
+          <button class="btn" style="width:auto;padding:12px 14px" onclick="searchBC()">Buscar</button>
+        </div>
+        <div id="bc-loading" style="display:none;text-align:center;padding:20px;color:var(--txs)"><div style="font-size:32px;margin-bottom:8px">🔍</div><p style="font-size:13px">Buscando en Open Food Facts...</p></div>
+        <div id="bc-error" style="display:none;text-align:center;padding:16px"><div style="font-size:32px;margin-bottom:8px">❌</div><p style="font-size:13px;color:var(--rd);font-weight:600" id="bc-errmsg">No encontrado</p><p style="font-size:12px;color:var(--txs);margin-top:4px">Busca el alimento por nombre</p></div>
+        <div id="bc-result" style="display:none">
+          <div style="background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r12);padding:14px;margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="font-size:36px">📦</div><div><div style="font-size:15px;font-weight:700;color:var(--tx)" id="bc-name">—</div><div style="font-size:12px;color:var(--txs)" id="bc-brand">—</div></div></div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;text-align:center">
+              <div><div style="font-size:16px;font-weight:800;color:var(--tx)" id="bc-kcal">—</div><div style="font-size:10px;color:var(--txs)">kcal</div></div>
+              <div><div style="font-size:16px;font-weight:800;color:var(--g600)" id="bc-prot">—</div><div style="font-size:10px;color:var(--txs)">Prot.</div></div>
+              <div><div style="font-size:16px;font-weight:800;color:var(--or)" id="bc-carb">—</div><div style="font-size:10px;color:var(--txs)">Carbs</div></div>
+              <div><div style="font-size:16px;font-weight:800;color:#B8860B" id="bc-fat">—</div><div style="font-size:10px;color:var(--txs)">Grasas</div></div>
+            </div>
+            <button class="btn" onclick="addBCFood()">+ Añadir al registro</button>
+          </div>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--r12);padding:12px 14px">
+          <p style="font-size:11px;color:var(--txs);line-height:1.6">💡 <b>Códigos chilenos:</b><br/>Quaker Avena: 7802800101058<br/>Ideal Pan molde: 7801640007021<br/>Soprole Leche: 7802400002014</p>
+        </div>
       </div>
     </div>
   </div>
@@ -977,24 +1011,93 @@ function addWater() {
 // ALIMENTOS
 // ═══════════════════════════════════
 const FOODS = [
+  // ── Desayuno / lácteos ──
   {ic:'🌾',nm:'Avena Quaker Instantánea',br:'Quaker Chile',kc:372,p:13,c:67,fg:7,pr:'100g',freq:true},
   {ic:'🥛',nm:'Leche Descremada Soprole',br:'Soprole',kc:34,p:3,c:5,fg:0,pr:'100ml',freq:true},
-  {ic:'🍗',nm:'Pechuga de pollo',br:'Super Pollo',kc:165,p:31,c:0,fg:4,pr:'100g',freq:true},
-  {ic:'🥚',nm:'Huevo entero',br:'Ariztía',kc:147,p:13,c:1,fg:10,pr:'100g',freq:true},
-  {ic:'🍌',nm:'Plátano fresco',br:'Genérico',kc:89,p:1,c:23,fg:0,pr:'100g',freq:false},
-  {ic:'🍎',nm:'Manzana roja',br:'Valle Central',kc:52,p:0,c:14,fg:0,pr:'100g',freq:false},
-  {ic:'🫐',nm:'Yogurt Griego',br:'Loncoleche',kc:79,p:10,c:4,fg:3,pr:'100g',freq:true},
-  {ic:'🍚',nm:'Arroz integral cocido',br:'Grano de Oro',kc:129,p:3,c:27,fg:1,pr:'100g',freq:false},
-  {ic:'🐟',nm:'Merluza fresca',br:'Mar Chileno',kc:90,p:19,c:0,fg:1,pr:'100g',freq:false},
-  {ic:'🥑',nm:'Palta Hass',br:'Agrícola Los Andes',kc:160,p:2,c:9,fg:15,pr:'100g',freq:false},
+  {ic:'🥛',nm:'Leche Entera Colún',br:'Colún',kc:61,p:3,c:5,fg:3,pr:'100ml',freq:false},
+  {ic:'🫐',nm:'Yogurt Griego Natural',br:'Loncoleche',kc:79,p:10,c:4,fg:3,pr:'100g',freq:true},
+  {ic:'🍦',nm:'Yogurt Batido Frutilla',br:'Quillayes',kc:82,p:3,c:14,fg:2,pr:'100g',freq:false},
+  {ic:'🧀',nm:'Queso fresco',br:'Colún',kc:98,p:12,c:2,fg:5,pr:'100g',freq:true},
+  {ic:'🧀',nm:'Queso Gauda laminado',br:'Colún',kc:356,p:25,c:2,fg:28,pr:'100g',freq:false},
+  {ic:'🧈',nm:'Mantequilla Soprole',br:'Soprole',kc:717,p:1,c:0,fg:81,pr:'100g',freq:false},
+  {ic:'🍳',nm:'Huevo entero',br:'Ariztía',kc:147,p:13,c:1,fg:10,pr:'100g',freq:true},
+  {ic:'🍳',nm:'Huevo revuelto con aceite',br:'Casero',kc:196,p:12,c:1,fg:16,pr:'100g',freq:false},
+  // ── Pan / cereales ──
   {ic:'🍞',nm:'Pan marraqueta',br:'Ideal',kc:270,p:8,c:52,fg:3,pr:'100g',freq:true},
-  {ic:'🧀',nm:'Queso fresco Colún',br:'Colún',kc:98,p:12,c:2,fg:5,pr:'100g',freq:false},
-  {ic:'🥩',nm:'Carne molida 90/10',br:'Los Andes',kc:175,p:21,c:0,fg:10,pr:'100g',freq:false},
-  {ic:'🥜',nm:'Mantequilla de maní',br:'Sundae',kc:588,p:25,c:20,fg:50,pr:'100g',freq:false},
-  {ic:'🍠',nm:'Camote cocido',br:'Genérico',kc:86,p:2,c:20,fg:0,pr:'100g',freq:false},
-  {ic:'🥦',nm:'Brócoli cocido',br:'Genérico',kc:35,p:2,c:7,fg:0,pr:'100g',freq:false},
+  {ic:'🍞',nm:'Pan de molde integral',br:'Ideal',kc:245,p:9,c:44,fg:4,pr:'100g',freq:true},
+  {ic:'🥐',nm:'Hallulla',br:'Artesanal',kc:290,p:8,c:55,fg:4,pr:'100g',freq:false},
+  {ic:'🌾',nm:'Granola sin azúcar',br:'Nestlé',kc:380,p:10,c:60,fg:12,pr:'100g',freq:false},
+  {ic:'🌽',nm:'Corn Flakes Kellogs',br:'Kellogs Chile',kc:380,p:8,c:85,fg:1,pr:'100g',freq:false},
+  {ic:'🌾',nm:'Maicena',br:'Carozzi',kc:381,p:0,c:91,fg:0,pr:'100g',freq:false},
+  // ── Proteínas ──
+  {ic:'🍗',nm:'Pechuga de pollo a la plancha',br:'Super Pollo',kc:165,p:31,c:0,fg:4,pr:'100g',freq:true},
+  {ic:'🍗',nm:'Muslo de pollo cocido',br:'Super Pollo',kc:209,p:26,c:0,fg:11,pr:'100g',freq:false},
+  {ic:'🥩',nm:'Carne molida 90/10',br:'Los Andes',kc:175,p:21,c:0,fg:10,pr:'100g',freq:true},
+  {ic:'🥩',nm:'Filete de vacuno',br:'Los Andes',kc:142,p:28,c:0,fg:3,pr:'100g',freq:false},
+  {ic:'🥩',nm:'Lomo liso a la plancha',br:'Casero',kc:218,p:26,c:0,fg:13,pr:'100g',freq:false},
+  {ic:'🥓',nm:'Cecina de cerdo',br:'Súper 8',kc:172,p:16,c:2,fg:11,pr:'100g',freq:false},
+  {ic:'🐟',nm:'Merluza fresca al vapor',br:'Mar Chileno',kc:90,p:19,c:0,fg:1,pr:'100g',freq:true},
+  {ic:'🐟',nm:'Salmón al horno',br:'Aquachile',kc:208,p:20,c:0,fg:14,pr:'100g',freq:false},
+  {ic:'🐟',nm:'Atún en lata (agua)',br:'Salmofood',kc:108,p:24,c:0,fg:1,pr:'100g',freq:true},
+  {ic:'🦐',nm:'Camarones cocidos',br:'Mar Chileno',kc:99,p:21,c:0,fg:1,pr:'100g',freq:false},
   {ic:'🥗',nm:'Pechuga de pavo',br:'San Jorge',kc:135,p:30,c:0,fg:1,pr:'100g',freq:false},
+  // ── Lácteos proteicos ──
+  {ic:'🥤',nm:'Proteína whey chocolate',br:'Absolut Nutrition',kc:380,p:75,c:10,fg:5,pr:'100g',freq:false},
+  {ic:'🥛',nm:'Leche sin lactosa',br:'Soprole',kc:47,p:3,c:5,fg:2,pr:'100ml',freq:false},
+  // ── Carbohidratos ──
+  {ic:'🍚',nm:'Arroz blanco cocido',br:'Tucapel',kc:130,p:3,c:28,fg:0,pr:'100g',freq:true},
+  {ic:'🍚',nm:'Arroz integral cocido',br:'Grano de Oro',kc:129,p:3,c:27,fg:1,pr:'100g',freq:false},
+  {ic:'🍝',nm:'Fideos cocidos',br:'Carozzi',kc:158,p:6,c:31,fg:1,pr:'100g',freq:true},
+  {ic:'🥔',nm:'Papa cocida',br:'Genérico',kc:87,p:2,c:20,fg:0,pr:'100g',freq:true},
+  {ic:'🍠',nm:'Camote cocido',br:'Genérico',kc:86,p:2,c:20,fg:0,pr:'100g',freq:false},
+  {ic:'🌽',nm:'Choclo cocido',br:'Genérico',kc:96,p:3,c:21,fg:1,pr:'100g',freq:false},
+  {ic:'🥔',nm:'Puré de papas',br:'Casero',kc:83,p:2,c:17,fg:1,pr:'100g',freq:false},
+  // ── Frutas ──
+  {ic:'🍌',nm:'Plátano fresco',br:'Genérico',kc:89,p:1,c:23,fg:0,pr:'100g',freq:true},
+  {ic:'🍎',nm:'Manzana roja',br:'Valle Central',kc:52,p:0,c:14,fg:0,pr:'100g',freq:false},
+  {ic:'🍊',nm:'Naranja',br:'Genérico',kc:47,p:1,c:12,fg:0,pr:'100g',freq:false},
+  {ic:'🍇',nm:'Uvas',br:'Genérico',kc:67,p:1,c:17,fg:0,pr:'100g',freq:false},
+  {ic:'🍓',nm:'Frutillas frescas',br:'Valle Central',kc:32,p:1,c:8,fg:0,pr:'100g',freq:false},
+  {ic:'🥭',nm:'Mango',br:'Genérico',kc:60,p:1,c:15,fg:0,pr:'100g',freq:false},
+  {ic:'🍑',nm:'Durazno fresco',br:'Genérico',kc:39,p:1,c:10,fg:0,pr:'100g',freq:false},
+  {ic:'🍐',nm:'Pera',br:'Genérico',kc:57,p:0,c:15,fg:0,pr:'100g',freq:false},
+  {ic:'🫐',nm:'Arándanos frescos',br:'Genérico',kc:57,p:1,c:14,fg:0,pr:'100g',freq:false},
+  {ic:'🍋',nm:'Limón de pica',br:'Norte Grande',kc:29,p:1,c:9,fg:0,pr:'100g',freq:false},
+  // ── Verduras ──
+  {ic:'🥦',nm:'Brócoli cocido',br:'Genérico',kc:35,p:2,c:7,fg:0,pr:'100g',freq:false},
+  {ic:'🥕',nm:'Zanahoria cruda',br:'Genérico',kc:41,p:1,c:10,fg:0,pr:'100g',freq:false},
+  {ic:'🧅',nm:'Cebolla cruda',br:'Genérico',kc:40,p:1,c:9,fg:0,pr:'100g',freq:false},
+  {ic:'🍅',nm:'Tomate fresco',br:'Genérico',kc:18,p:1,c:4,fg:0,pr:'100g',freq:false},
+  {ic:'🥬',nm:'Lechuga',br:'Genérico',kc:15,p:1,c:3,fg:0,pr:'100g',freq:false},
+  {ic:'🥒',nm:'Pepino',br:'Genérico',kc:15,p:1,c:4,fg:0,pr:'100g',freq:false},
+  {ic:'🌶',nm:'Pimentón rojo',br:'Genérico',kc:31,p:1,c:7,fg:0,pr:'100g',freq:false},
+  {ic:'🧄',nm:'Ajo crudo',br:'Genérico',kc:149,p:6,c:33,fg:1,pr:'100g',freq:false},
+  {ic:'🥑',nm:'Palta Hass',br:'Agrícola Los Andes',kc:160,p:2,c:9,fg:15,pr:'100g',freq:true},
+  {ic:'🥗',nm:'Ensalada chilena',br:'Casero',kc:22,p:1,c:5,fg:0,pr:'100g',freq:true},
+  // ── Legumbres ──
   {ic:'🫘',nm:'Lentejas cocidas',br:'Carozzi',kc:116,p:9,c:20,fg:0,pr:'100g',freq:false},
+  {ic:'🫘',nm:'Porotos negros cocidos',br:'Carozzi',kc:132,p:9,c:24,fg:0,pr:'100g',freq:false},
+  {ic:'🫘',nm:'Garbanzos cocidos',br:'Carozzi',kc:164,p:9,c:27,fg:3,pr:'100g',freq:false},
+  {ic:'🥜',nm:'Arvejas cocidas',br:'Genérico',kc:84,p:5,c:15,fg:0,pr:'100g',freq:false},
+  // ── Grasas saludables ──
+  {ic:'🥜',nm:'Mantequilla de maní',br:'Sundae',kc:588,p:25,c:20,fg:50,pr:'100g',freq:false},
+  {ic:'🫒',nm:'Aceite de oliva',br:'Montereal',kc:884,p:0,c:0,fg:100,pr:'100ml',freq:false},
+  {ic:'🌻',nm:'Aceite de maravilla',br:'Chef',kc:884,p:0,c:0,fg:100,pr:'100ml',freq:false},
+  {ic:'🥜',nm:'Nueces',br:'Genérico',kc:654,p:15,c:14,fg:65,pr:'100g',freq:false},
+  {ic:'🌰',nm:'Almendras',br:'Genérico',kc:579,p:21,c:22,fg:50,pr:'100g',freq:false},
+  {ic:'🌻',nm:'Semillas de chía',br:'Genérico',kc:486,p:17,c:42,fg:31,pr:'100g',freq:false},
+  // ── Bebidas / suplementos ──
+  {ic:'☕',nm:'Café negro sin azúcar',br:'Nescafé',kc:2,p:0,c:0,fg:0,pr:'100ml',freq:true},
+  {ic:'🍵',nm:'Té sin azúcar',br:'Supremo',kc:1,p:0,c:0,fg:0,pr:'100ml',freq:false},
+  {ic:'🧃',nm:'Jugo de naranja natural',br:'Casero',kc:45,p:1,c:10,fg:0,pr:'100ml',freq:false},
+  {ic:'🥤',nm:'Bebida cola light',br:'Coca-Cola',kc:1,p:0,c:0,fg:0,pr:'100ml',freq:false},
+  // ── Snacks / otros ──
+  {ic:'🍫',nm:'Chocolate bitter 70%',br:'Costa',kc:598,p:8,c:46,fg:43,pr:'100g',freq:false},
+  {ic:'🍪',nm:'Galletas de avena',br:'McKay',kc:450,p:8,c:68,fg:16,pr:'100g',freq:false},
+  {ic:'🥓',nm:'Jamón de pavo',br:'San Jorge',kc:98,p:16,c:2,fg:3,pr:'100g',freq:true},
+  {ic:'🍕',nm:'Pizza casera',br:'Casero',kc:266,p:11,c:33,fg:10,pr:'100g',freq:false},
+  {ic:'🌮',nm:'Empanada de pino horneada',br:'Artesanal',kc:280,p:12,c:32,fg:12,pr:'100g',freq:false},
+  {ic:'🧆',nm:'Sopaipilla',br:'Artesanal',kc:290,p:5,c:42,fg:12,pr:'100g',freq:false},
 ];
 
 function drawNutr() {
@@ -1038,20 +1141,54 @@ function addF(d) {
 // EJERCICIOS
 // ═══════════════════════════════════
 const EXS = [
-  {ic:'🏋',nm:'Sentadilla profunda',mu:'piernas',dif:'Básico',dt:'15 reps',kc:80},
+  // ── PECHO ──
   {ic:'🤸',nm:'Flexiones estándar',mu:'pecho',dif:'Básico',dt:'12 reps',kc:60},
   {ic:'🤸',nm:'Flexiones diamante',mu:'pecho',dif:'Medio',dt:'10 reps',kc:55},
-  {ic:'🧘',nm:'Plancha frontal',mu:'core',dif:'Básico',dt:'40 seg',kc:40},
-  {ic:'🦵',nm:'Zancadas alternas',mu:'piernas',dif:'Básico',dt:'20 reps',kc:70},
-  {ic:'💪',nm:'Fondos en silla',mu:'brazos',dif:'Básico',dt:'15 reps',kc:50},
-  {ic:'🏃',nm:'Mountain Climbers',mu:'core',dif:'Medio',dt:'30 seg',kc:90},
+  {ic:'🤸',nm:'Flexiones inclinadas (pies en silla)',mu:'pecho',dif:'Medio',dt:'10 reps',kc:60},
+  {ic:'🤸',nm:'Flexiones declinadas',mu:'pecho',dif:'Avanzado',dt:'8 reps',kc:65},
+  {ic:'🤸',nm:'Flexiones con palmada',mu:'pecho',dif:'Avanzado',dt:'6 reps',kc:70},
+  {ic:'🤸',nm:'Flexiones lentas (4 seg bajada)',mu:'pecho',dif:'Medio',dt:'8 reps',kc:55},
+  // ── ESPALDA ──
   {ic:'⬆️',nm:'Superman',mu:'espalda',dif:'Básico',dt:'12 reps',kc:35},
-  {ic:'🔥',nm:'Burpees',mu:'piernas',dif:'Avanzado',dt:'8 reps',kc:120},
-  {ic:'🧘',nm:'Abdominales bicicleta',mu:'core',dif:'Medio',dt:'20 reps',kc:45},
+  {ic:'🏋',nm:'Remo invertido (mesa)',mu:'espalda',dif:'Medio',dt:'12 reps',kc:55},
+  {ic:'🤸',nm:'Extensiones de espalda',mu:'espalda',dif:'Básico',dt:'15 reps',kc:30},
+  {ic:'⬆️',nm:'Superman alterno',mu:'espalda',dif:'Básico',dt:'20 reps',kc:35},
+  {ic:'🏋',nm:'Remo con mochila',mu:'espalda',dif:'Medio',dt:'12 reps',kc:60},
+  {ic:'🤸',nm:'Plancha con remo',mu:'espalda',dif:'Avanzado',dt:'10 reps',kc:75},
+  // ── PIERNAS ──
+  {ic:'🏋',nm:'Sentadilla profunda',mu:'piernas',dif:'Básico',dt:'15 reps',kc:80},
+  {ic:'🦵',nm:'Zancadas alternas',mu:'piernas',dif:'Básico',dt:'20 reps',kc:70},
   {ic:'🦵',nm:'Puente de glúteos',mu:'piernas',dif:'Básico',dt:'20 reps',kc:40},
-  {ic:'💪',nm:'Curl con botella',mu:'brazos',dif:'Básico',dt:'15 reps',kc:35},
-  {ic:'🏋',nm:'Remo invertido',mu:'espalda',dif:'Medio',dt:'12 reps',kc:55},
+  {ic:'🔥',nm:'Sentadilla con salto',mu:'piernas',dif:'Avanzado',dt:'10 reps',kc:100},
+  {ic:'🦵',nm:'Sentadilla búlgara (silla)',mu:'piernas',dif:'Medio',dt:'12 reps',kc:75},
+  {ic:'🦵',nm:'Elevación de pantorrillas',mu:'piernas',dif:'Básico',dt:'20 reps',kc:30},
+  {ic:'🔥',nm:'Burpees',mu:'piernas',dif:'Avanzado',dt:'8 reps',kc:120},
   {ic:'🔥',nm:'Jumping Jacks',mu:'piernas',dif:'Básico',dt:'30 seg',kc:65},
+  {ic:'🦵',nm:'Zancadas con salto',mu:'piernas',dif:'Avanzado',dt:'12 reps',kc:90},
+  {ic:'🏋',nm:'Sentadilla sumo',mu:'piernas',dif:'Básico',dt:'15 reps',kc:75},
+  // ── CORE ──
+  {ic:'🧘',nm:'Plancha frontal',mu:'core',dif:'Básico',dt:'40 seg',kc:40},
+  {ic:'🧘',nm:'Abdominales bicicleta',mu:'core',dif:'Medio',dt:'20 reps',kc:45},
+  {ic:'🏃',nm:'Mountain Climbers',mu:'core',dif:'Medio',dt:'30 seg',kc:90},
+  {ic:'🧘',nm:'Plancha lateral',mu:'core',dif:'Medio',dt:'30 seg c/lado',kc:40},
+  {ic:'🧘',nm:'Crunch abdominal',mu:'core',dif:'Básico',dt:'20 reps',kc:35},
+  {ic:'🧘',nm:'Elevación de piernas tumbado',mu:'core',dif:'Medio',dt:'15 reps',kc:45},
+  {ic:'🧘',nm:'Hollow hold',mu:'core',dif:'Avanzado',dt:'30 seg',kc:50},
+  {ic:'🧘',nm:'Dead bug',mu:'core',dif:'Básico',dt:'10 reps c/lado',kc:35},
+  {ic:'🏃',nm:'Plancha dinámica',mu:'core',dif:'Medio',dt:'10 reps',kc:55},
+  {ic:'🧘',nm:'Giro ruso con mochila',mu:'core',dif:'Medio',dt:'20 reps',kc:50},
+  // ── BRAZOS ──
+  {ic:'💪',nm:'Fondos en silla (tríceps)',mu:'brazos',dif:'Básico',dt:'15 reps',kc:50},
+  {ic:'💪',nm:'Curl con botella (bíceps)',mu:'brazos',dif:'Básico',dt:'15 reps',kc:35},
+  {ic:'💪',nm:'Extensión de tríceps overhead',mu:'brazos',dif:'Básico',dt:'15 reps',kc:35},
+  {ic:'🤸',nm:'Flexiones con manos juntas',mu:'brazos',dif:'Medio',dt:'10 reps',kc:55},
+  {ic:'💪',nm:'Curl martillo con mochila',mu:'brazos',dif:'Medio',dt:'12 reps',kc:40},
+  {ic:'💪',nm:'Fondos profundos',mu:'brazos',dif:'Avanzado',dt:'10 reps',kc:60},
+  // ── FULL BODY ──
+  {ic:'🔥',nm:'Burpees con flexión',mu:'core',dif:'Avanzado',dt:'8 reps',kc:130},
+  {ic:'🏃',nm:'Sprints en el lugar',mu:'piernas',dif:'Básico',dt:'30 seg',kc:85},
+  {ic:'🏋',nm:'Thruster con mochila',mu:'piernas',dif:'Medio',dt:'12 reps',kc:95},
+  {ic:'🔥',nm:'Circuito tabata (20s/10s)',mu:'core',dif:'Avanzado',dt:'8 rondas',kc:150},
 ];
 const TCFG = { 15:{n:4,s:2,kc:130}, 30:{n:6,s:3,kc:250}, 45:{n:8,s:4,kc:380} };
 const PILL = { Básico:'pg', Medio:'po', Avanzado:'pr' };
@@ -1287,6 +1424,11 @@ setInterval(updClk, 30000); updClk();
 // ═══════════════════════════════════
 // INIT
 // ═══════════════════════════════════
+// Prevent pull-to-refresh
+document.addEventListener('touchmove',function(e){
+  if(!e.target.closest('.scrl,.flist,.exlist,.sht,.mtabs,.mfil'))e.preventDefault();
+},{passive:false});
+
 (function init() {
   history.pushState({ s: 'splash' }, '', '');
 
@@ -1305,6 +1447,60 @@ setInterval(updClk, 30000); updClk();
     }
   }
 })();
+
+// ─── SCANNER ───────────────────────────────────────────
+let bcFood = null;
+function openScanner(){
+  ['bc-result','bc-loading','bc-error'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('bc-inp').value='';
+  bcFood=null;
+  openSheet('scansheet');
+}
+async function searchBC(){
+  const code=document.getElementById('bc-inp').value.trim();
+  if(!code){toast('⚠️ Ingresa un código de barras');return;}
+  ['bc-result','bc-error'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('bc-loading').style.display='block';
+  try{
+    const res=await fetch('https://world.openfoodfacts.org/api/v0/product/'+code+'.json');
+    const data=await res.json();
+    document.getElementById('bc-loading').style.display='none';
+    if(data.status!==1||!data.product){
+      document.getElementById('bc-errmsg').textContent='Producto no encontrado en Open Food Facts';
+      document.getElementById('bc-error').style.display='block';return;
+    }
+    const p=data.product,n=p.nutriments||{};
+    const name=p.product_name||p.product_name_es||'Producto';
+    const brand=p.brands||'Sin marca';
+    const kcal=Math.round(n['energy-kcal_100g']||n['energy-kcal']||0);
+    const prot=Math.round((n.proteins_100g||0)*10)/10;
+    const carb=Math.round((n.carbohydrates_100g||0)*10)/10;
+    const fat=Math.round((n.fat_100g||0)*10)/10;
+    bcFood={ic:'📦',nm:name,pr:'100g',kc:kcal,p:prot,c:carb,fg:fat};
+    document.getElementById('bc-name').textContent=name.length>35?name.slice(0,35)+'…':name;
+    document.getElementById('bc-brand').textContent=brand;
+    document.getElementById('bc-kcal').textContent=kcal;
+    document.getElementById('bc-prot').textContent=prot+'g';
+    document.getElementById('bc-carb').textContent=carb+'g';
+    document.getElementById('bc-fat').textContent=fat+'g';
+    document.getElementById('bc-result').style.display='block';
+  }catch(e){
+    document.getElementById('bc-loading').style.display='none';
+    document.getElementById('bc-errmsg').textContent='Error de conexión. Verifica internet.';
+    document.getElementById('bc-error').style.display='block';
+  }
+}
+function addBCFood(){
+  if(!bcFood)return;
+  MEALS[CMEAL].push({ic:bcFood.ic,nm:bcFood.nm,pr:bcFood.pr,kc:bcFood.kc,p:bcFood.p,c:bcFood.c,fg:bcFood.fg});
+  TODAY.kcal+=bcFood.kc;TODAY.p+=bcFood.p;TODAY.c+=bcFood.c;TODAY.f+=bcFood.fg;
+  saveSess();drawNutr();drawDash();
+  closeSheet('scansheet');
+  toast('✅ '+bcFood.nm.slice(0,25)+' añadido (+'+bcFood.kc+' kcal)');
+  bcFood=null;
+}
+document.getElementById('bc-inp')?.addEventListener('keydown',e=>{if(e.key==='Enter')searchBC();});
+
 </script>
 </body>
 </html>
